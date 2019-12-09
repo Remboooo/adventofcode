@@ -89,10 +89,7 @@ class IntVM:
 
     def get_modes(self, opcode, num_ops):
         def _m(opcode_mode):
-            if opcode_mode == 0:
-                return []
-            else:
-                return [opcode_mode % 10] + _m(opcode_mode // 10)
+            return [opcode_mode % 10] + _m(opcode_mode // 10) if opcode_mode != 0 else []
 
         op_modes = _m(opcode // 100)
         return [op_modes[i] if i < len(op_modes) else 0 for i in range(num_ops)]
