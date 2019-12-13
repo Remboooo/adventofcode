@@ -2,7 +2,6 @@ from argparse import ArgumentParser
 from collections import defaultdict
 
 from intvm import IntVM
-from util import IterableQueue
 
 
 class Container:

@@ -25,6 +25,21 @@ class ProgramState:
         self.pc = 0
 
 
+class MultiOutput:
+    def __init__(self, output_func, num_properties):
+        self.current_property = 0
+        self.current_properties = [0] * num_properties
+        self.output_func = output_func
+
+    def __call__(self, value):
+        self.current_properties[self.current_property] = value
+        self.current_property += 1
+        if self.current_property == len(self.current_properties):
+            self.output_func(*self.current_properties)
+            self.current_properties = [0] * len(self.current_properties)
+            self.current_property = 0
+
+
 class IntVM:
     def __init__(self, program, inputs=None, output_func=print):
         self.state = ProgramState(program)
