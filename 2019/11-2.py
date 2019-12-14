@@ -63,7 +63,7 @@ class RobotIO:
         w = maxx - minx + 1
         h = maxy - miny + 1
 
-        painting = np.ndarray((w, h), dtype=int)
+        painting = np.zeros((w, h), dtype=int)
 
         for (x, y), color in self.tiles.items():
             painting[x-minx, y-miny] = color
@@ -74,7 +74,7 @@ class RobotIO:
 
 def main():
     argparse = ArgumentParser()
-    argparse.add_argument("file", type=str)
+    argparse.add_argument("file", type=str, nargs="?", default="11-input.txt")
     args = argparse.parse_args()
 
     with open(args.file, "r") as f:
