@@ -1,3 +1,2 @@
 numpy
 curses-menu
-windows-curses

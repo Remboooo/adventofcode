@@ -41,10 +41,16 @@ class MultiOutput:
 
 
 class IntVM:
+
     def __init__(self, program, inputs=None, output_func=print):
+        self.stopping = False
+        self.program = program
         self.state = ProgramState(program)
         self.input_gen = iter(inputs) if inputs is not None else []
         self.output_consumer = output_func
+
+    def reset(self):
+        self.state = ProgramState(self.program)
 
     def op_add(self, input_op_vals, output_op_addrs):
         self.state.memory[output_op_addrs[0]] = input_op_vals[0] + input_op_vals[1]
@@ -105,8 +111,9 @@ class IntVM:
         return [op_modes[i] if i < len(op_modes) else 0 for i in range(num_ops)]
 
     def run(self):
+        self.stopping = False
         self.state.pc = 0
-        while True:
+        while not self.stopping:
             opcode = self.state.memory[self.state.pc]
 
             op_func, num_input_ops, num_output_ops = self.ops[opcode % 100]
@@ -128,7 +135,12 @@ class IntVM:
                 self.state.pc += 1 + num_input_ops + num_output_ops
 
             if self.state.pc < 0:
-                return self.state
+                self.stopping = True
+
+        return self.state
+
+    def stop(self):
+        self.stopping = True
 
     ops = {
         1: (op_add, 2, 1),
