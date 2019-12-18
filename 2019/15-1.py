@@ -232,13 +232,16 @@ def main():
     argparse = ArgumentParser()
     argparse.add_argument("file", type=str, nargs="?", default="15-input.txt")
     argparse.add_argument("--fps", "-f", type=int, nargs="?", default=10)
-    argparse.add_argument("--map", action='store_true', default=True, help="Explore complete map and save to 15-map.txt")
+    argparse.add_argument(
+        "--nomap", action='store_true',
+        help="Don't explore the complete map and don't save to 15-map.txt (faster, but you need the map for 15-2.py)"
+    )
     args = argparse.parse_args()
 
     with open(args.file, "r") as f:
         program = [int(c) for c in f.read().split(',')]
 
-    finder = OxygenFinder(program, fps=args.fps, explore_map=args.map)
+    finder = OxygenFinder(program, fps=args.fps, explore_map=not args.nomap)
     wrapper(finder.run_curses)
 
 

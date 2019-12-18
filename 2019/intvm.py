@@ -111,8 +111,11 @@ class IntVM:
         return [op_modes[i] if i < len(op_modes) else 0 for i in range(num_ops)]
 
     def run(self):
-        self.stopping = False
         self.state.pc = 0
+        self.resume()
+
+    def resume(self):
+        self.stopping = False
         while not self.stopping:
             opcode = self.state.memory[self.state.pc]
 
