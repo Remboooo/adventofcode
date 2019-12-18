@@ -41,13 +41,12 @@ class MultiOutput:
 
 
 class IntVM:
-
     def __init__(self, program, inputs=None, output_func=print):
         self.stopping = False
         self.program = program
         self.state = ProgramState(program)
         self.input_gen = iter(inputs) if inputs is not None else []
-        self.output_consumer = output_func
+        self.output_func = output_func
 
     def reset(self):
         self.state = ProgramState(self.program)
@@ -59,10 +58,13 @@ class IntVM:
         self.state.memory[output_op_addrs[0]] = input_op_vals[0] * input_op_vals[1]
 
     def op_input(self, input_op_vals, output_op_addrs):
-        self.state.memory[output_op_addrs[0]] = next(self.input_gen)
+        val = next(self.input_gen)
+        if not isinstance(val, int):
+            raise ValueError("Input is not int: " + repr(val))
+        self.state.memory[output_op_addrs[0]] = val
 
     def op_output(self, input_op_vals, output_op_addrs):
-        self.output_consumer(input_op_vals[0])
+        self.output_func(input_op_vals[0])
 
     def op_jump_if_true(self, input_op_vals, output_op_addrs):
         op_test, op_pc = input_op_vals
@@ -111,7 +113,7 @@ class IntVM:
         return [op_modes[i] if i < len(op_modes) else 0 for i in range(num_ops)]
 
     def run(self):
-        self.state.pc = 0
+        self.state = ProgramState(self.program)
         self.resume()
 
     def resume(self):
