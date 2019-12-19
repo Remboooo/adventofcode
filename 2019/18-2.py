@@ -18,11 +18,11 @@ class Finder:
         self.map = map
         self.doors = doors if doors is not None else {}
         self.keys = keys if keys is not None else {}
-        self.entrance = None
+        self.entrances = None
         if keys is None or doors is None:
             self.locate_objects()
         self.reverse_keys = reverse_keys if reverse_keys is not None else {l: k for k, l in self.keys.items()}
-        self.current_loc = self.entrance
+        self.current_locs = self.entrances
         self.steps_done = 0
         self.key_sequence = []
         self.shortest_path_holder = shortest_path_holder if shortest_path_holder is not None else ShortestPathHolder()
@@ -38,8 +38,12 @@ class Finder:
                     self.doors[str(tile)] = (y, x)
                     self.map[y, x] = self.TILE_EMPTY
                 elif tile == '@':
-                    self.entrance = (y, x)
-                    self.map[y, x] = self.TILE_EMPTY
+                    self.entrances = ((y-1, x-1), (y-1, x+1), (y+1, x-1), (y+1, x+1))
+                    self.map[y, x] = self.TILE_WALL
+                    self.map[y-1, x] = self.TILE_WALL
+                    self.map[y+1, x] = self.TILE_WALL
+                    self.map[y, x-1] = self.TILE_WALL
+                    self.map[y, x+1] = self.TILE_WALL
 
     def _get_reachable_keys_steps(self, current_loc, keys, doors, reverse_keys, used_keys):
         fill_map = np.ndarray(self.map.shape, dtype=int)
@@ -74,32 +78,36 @@ class Finder:
         for l in self.map:
             print(''.join(t for t in l))
 
-    def _shortest_path_all_keys_it(self, current_coord, keys_done, keys, rev_keys, doors):
-        cache_key = (current_coord, keys_done)
+    def _shortest_path_all_keys_it(self, current_coords, keys_done, keys, rev_keys, doors):
+        cache_key = (current_coords, keys_done)
         try:
             return self.distance_cache[cache_key]
         except KeyError:
             min_steps, min_sequence = None, None
-            for key, key_steps in self._get_reachable_keys_steps(current_coord, keys, doors, rev_keys, keys_done).items():
-                if len(keys_done) == len(keys) - 1:
-                    # Last key; no use copying the map etc, we already know the total path length
-                    min_steps, min_sequence = key_steps, [key]
-                else:
-                    if min_steps is not None and key_steps >= min_steps:
-                        continue
 
-                    key_min_steps, key_min_sequence = self._shortest_path_all_keys_it(
-                        keys[key], keys_done.union([key]), keys, rev_keys, doors
-                    )
-                    if key_min_steps is not None:
-                        if min_steps is None or key_steps + key_min_steps < min_steps:
-                            min_steps, min_sequence = key_steps + key_min_steps, [key] + key_min_sequence
+            for bot in range(len(current_coords)):
+                for key, key_steps in self._get_reachable_keys_steps(current_coords[bot], keys, doors, rev_keys, keys_done).items():
+                    if len(keys_done) == len(keys) - 1:
+                        # Last key; no use copying the map etc, we already know the total path length
+                        min_steps, min_sequence = key_steps, [key]
+                    else:
+                        if min_steps is not None and key_steps >= min_steps:
+                            continue
+
+                        new_coords = current_coords[:bot] + (keys[key],) + current_coords[bot+1:]
+
+                        key_min_steps, key_min_sequence = self._shortest_path_all_keys_it(
+                            new_coords, keys_done.union([key]), keys, rev_keys, doors
+                        )
+                        if key_min_steps is not None:
+                            if min_steps is None or key_steps + key_min_steps < min_steps:
+                                min_steps, min_sequence = key_steps + key_min_steps, [key] + key_min_sequence
 
             self.distance_cache[cache_key] = min_steps, min_sequence
             return min_steps, min_sequence
 
     def get_shortest_path_all_keys(self):
-        return self._shortest_path_all_keys_it(self.entrance, frozenset(), self.keys, self.reverse_keys, self.doors)
+        return self._shortest_path_all_keys_it(self.entrances, frozenset(), self.keys, self.reverse_keys, self.doors)
 
 
 def main():
