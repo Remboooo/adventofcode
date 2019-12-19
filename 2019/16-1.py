@@ -1,12 +1,4 @@
-import curses
-import sys
-import time
 from argparse import ArgumentParser
-
-import numpy as np
-
-from intvm import IntVM
-from curses import wrapper
 
 
 def main():
