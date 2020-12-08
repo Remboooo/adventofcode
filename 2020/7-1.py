@@ -2,6 +2,8 @@ import regex
 from argparse import ArgumentParser
 
 # re module does not support retrieving repeated captures for groups
+from util import timed
+
 rule_re = regex.compile(r'^([a-z]+ [a-z]+) bags contain (?:(?:(?:([0-9]+) ([a-z]+ [a-z]+) bags?, )*([0-9]+) ([a-z]+ [a-z]+) bags?\.)|(?:no other bags\.))$')
 
 
@@ -20,12 +22,11 @@ def parse_rules(lines):
     return rules
 
 
-def find_containers(contained, rules, prefix=''):
+def find_containers(contained, rules):
     for container, allowed_contents in rules.items():
         if contained in allowed_contents:
-            print(f"{prefix}{contained} -> {container}")
             yield container
-            yield from find_containers(container, rules, prefix=f"{prefix}{contained} -> ")
+            yield from find_containers(container, rules)
 
 
 def main():
@@ -34,7 +35,7 @@ def main():
     args = argparse.parse_args()
     with open(args.file, "r") as f:
         rules = parse_rules(f)
-        allowed_containers = set(find_containers('shiny gold', rules))
+        allowed_containers = set(timed(find_containers)('shiny gold', rules))
         print(allowed_containers)
         print(len(allowed_containers))
 

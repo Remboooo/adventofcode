@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 
+from util import timed
+
 
 class Program:
     def __init__(self, instructions):
@@ -59,7 +61,7 @@ def main():
     with open(args.file, "r") as f:
         program = Program.parse(f)
         vm = VM(program)
-        vm.run()
+        timed(vm.run)()
         print(vm.accumulator)
 
 

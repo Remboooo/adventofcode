@@ -1,5 +1,7 @@
 from argparse import ArgumentParser
 
+from util import timed
+
 
 class VM:
     def __init__(self, instructions):
@@ -73,7 +75,7 @@ def main():
     args = argparse.parse_args()
     with open(args.file, "r") as f:
         program = parse_program(f)
-        print(find_jmp_nop_swap(program))
+        print(timed(find_jmp_nop_swap)(program))
 
 
 if __name__ == '__main__':
