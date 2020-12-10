@@ -25,7 +25,7 @@ def find_contiguous_number_sum(weak_sum, code):
 def main():
     argparse = ArgumentParser()
     argparse.add_argument("file", nargs='?', type=str, default="9-input.txt")
-    argparse.add_argument("--preamble-length", "-p", type=int, default=25)
+    argparse.add_argument("--preamble-length", "-p", type=int, default=25, help="Use 5 for test input")
     args = argparse.parse_args()
     with open(args.file, "r") as f:
         code = [int(stripped) for stripped in (line.strip() for line in f) if stripped]
