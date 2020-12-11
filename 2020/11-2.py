@@ -12,7 +12,7 @@ def find_visible_seats(seat_map):
         ):
             x = ncol + dx
             y = nrow + dy
-            while 0 < x < len(seat_map[0]) and 0 < y < len(seat_map):
+            while 0 <= x < len(seat_map[0]) and 0 <= y < len(seat_map):
                 if seat_map[y][x] in ('#', 'L'):
                     yield x, y
                     break
@@ -27,8 +27,8 @@ def find_visible_seats(seat_map):
 
 def evolve(seat_map, visible_seats):
     new_seat_map = [row.copy() for row in seat_map]
-    for nrow, row in enumerate(seat_map[1:-1], 1):
-        for ncol, seat in enumerate(row[1:-1], 1):
+    for nrow, row in enumerate(seat_map):
+        for ncol, seat in enumerate(row):
             occupancy = sum(seat_map[y][x] == '#' for x, y in visible_seats[nrow][ncol])
             if occupancy == 0 and seat_map[nrow][ncol] == 'L':
                 new_seat_map[nrow][ncol] = '#'
@@ -40,10 +40,6 @@ def evolve(seat_map, visible_seats):
 
 @timed
 def evolve_until_stable(seat_map):
-    # Pad seat map so we don't have to special-case the edges in array indexing
-    seat_map = [[' '] + row + [' '] for row in seat_map]
-    seat_map = [[' '] * len(seat_map[0])] + seat_map + [[' '] * len(seat_map[0])]
-
     visible_seats = find_visible_seats(seat_map)
 
     while True:
