@@ -1,4 +1,5 @@
 import inspect
+import math
 import time
 
 
@@ -9,19 +10,28 @@ def func_name(func):
         return func.__name__
 
 
+def format_timedelta(delta):
+    if delta >= 1:
+        return f"{delta:.3f}s"
+    elif delta >= .001:
+        return f"{delta*1e3:.3f}ms"
+    else:
+        return f"{delta * 1e6:.3f}µs"
+
+
 def timed(func):
     if inspect.isgeneratorfunction(func):
         def wrapper(*args, **kwargs):
             start = time.monotonic()
             result = yield from func(*args, **kwargs)
-            print(f"{func_name(func)}() runtime (+ generator value consumption): {time.monotonic() - start:.3f}s")
+            print(f"{func_name(func)}() runtime (+ generator value consumption): {format_timedelta(time.monotonic() - start)}")
             return result
         return wrapper
     else:
         def wrapper(*args, **kwargs):
             start = time.monotonic()
             result = func(*args, **kwargs)
-            print(f"{func_name(func)}() runtime: {time.monotonic() - start:.3f}s")
+            print(f"{func_name(func)}() runtime: {format_timedelta(time.monotonic() - start)}")
             return result
         return wrapper
 
@@ -59,3 +69,20 @@ def memoized(*key_args):
             return memoizer
 
     return wrapper_wrapper
+
+
+def egcd(a, b):
+    """
+    Extended Euclidean algorithm to solve for x, a, and gcd(a, b):
+    x * a + y * b = gcd(a, b)
+    :return: gcd(a, b), x, y
+    """
+    if a == 0:
+        return b, 0, 1
+    else:
+        gcd, x, y = egcd(b % a, a)
+        return gcd, y - (b // a) * x, x
+
+
+def lcm(a, b):
+    return abs(a*b) // math.gcd(a, b)
