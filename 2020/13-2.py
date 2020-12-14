@@ -4,6 +4,13 @@ from util import timed, egcd
 
 
 def least_common_multiple_with_offset(a_period, a_offset, b_period, b_offset):
+    """
+    Solves
+    p * period + phase = m * a + c = n * b + d
+    for period and phase, given a, b, c, d, with m, n and p being freely chosen positive integers.
+    https://math.stackexchange.com/a/3864593/612766
+    :return: phase, period
+    """
     a_offset = (-a_offset) % a_period
     b_offset = (-b_offset) % b_period
     gcd, s, t = egcd(a_period, b_period)
