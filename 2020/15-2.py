@@ -1,31 +1,29 @@
 from argparse import ArgumentParser
-from collections import defaultdict
-from itertools import islice, count
+from itertools import islice
 
 from util import timed
 
 
-def play(starting_numbers):
-    history = defaultdict(lambda: (None, None))
+def play(starting_numbers, count):
+    # Using -1 in stead of None allows pypy3 to optimize this to an int array, saves a factor of 5 in runtime (!)
+    history = [-1] * (count + 1)
+    for turn, value in enumerate(starting_numbers):
+        yield value
+        history[value] = turn + 1
 
-    last_number = None
+    last_number = starting_numbers[-1]
 
-    for turn, number in enumerate(starting_numbers):
-        history[number] = turn, history[number][0]
-        last_number = number
-        yield number
-
-    for turn in count(len(history)):
-        prev, prevprev = history[last_number]
-
-        if prevprev is None:
-            number = 0
+    for turn in range(len(starting_numbers), count):
+        last_turn = history[last_number]
+        if last_turn != -1:
+            number = turn - last_turn
         else:
-            number = prev - prevprev
-
-        history[number] = turn, history[number][0]
+            number = 0
+        history[last_number] = turn
         yield number
         last_number = number
+
+    return last_number
 
 
 @timed
@@ -36,17 +34,17 @@ def get_nth_number(gen, num):
 def main():
     argparse = ArgumentParser()
     argparse.add_argument("input", nargs='?', type=str, default="14,1,17,0,3,20")
-    argparse.add_argument("-n", nargs='?', type=int, default=30000000, help="Number of turns to play")
     argparse.add_argument("--verbose", "-v", action='store_true', help="Show intermediate results")
+    argparse.add_argument("-n", nargs='?', type=int, default=30000000, help="Number of turns to play")
     args = argparse.parse_args()
 
     starting_numbers = [int(n.strip()) for n in args.input.split(',')]
 
     if args.verbose:
-        for turn, number in enumerate(islice(play(starting_numbers), 0, args.n)):
+        for turn, number in enumerate(islice(play(starting_numbers, args.n), 0, args.n)):
             print(f"{turn:10d}: {number:10d}")
     else:
-        print(get_nth_number(play(starting_numbers), args.n))
+        print(get_nth_number(play(starting_numbers, args.n), args.n))
 
 
 if __name__ == '__main__':
