@@ -10,6 +10,7 @@ def get_bus_departure(now, bus_interval):
     return departure
 
 
+@timed
 def find_earliest_bus_departure(now, bus_intervals):
     return min(
         ((bus_interval, get_bus_departure(now, bus_interval)) for bus_interval in bus_intervals),
