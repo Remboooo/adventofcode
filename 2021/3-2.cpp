@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
-#include "util/util.h"
+#include "util.h"
 
 void process_file(std::ifstream& infile) {
     std::vector<unsigned> numbers{};
@@ -66,5 +66,5 @@ void process_file(std::ifstream& infile) {
 }
 
 int main(int argc, const char** argv) {
-    return run(argc, argv, file_name(__FILE__), process_file);
+    return run(argc, argv, base_name(__FILE__), process_file);
 }

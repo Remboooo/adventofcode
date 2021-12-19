@@ -17,7 +17,7 @@ private:
     std::string msg;
 };
 
-int run(int argc, const char** argv, const char* name, auto arg_processor, auto file_processor) {
+int run(int argc, const char** argv, const std::string& name, auto arg_processor, auto file_processor) {
     argparse::ArgumentParser parser(name);
 
     parser.add_argument("files").remaining();
@@ -52,7 +52,7 @@ int run(int argc, const char** argv, const char* name, auto arg_processor, auto 
     }
 }
 
-static int run(int argc, const char** argv, const char* name, auto file_processor) {
+static int run(int argc, const char** argv, const std::string& name, auto file_processor) {
     return run(argc, argv, name, [](auto){}, file_processor);
 }
 
@@ -88,6 +88,20 @@ constexpr const char* file_name(const char* path) {
         }
     }
     return file;
+}
+
+constexpr const char* last_dot_of(const char* p) {
+    const char* last_dot = nullptr;
+    for ( ; *p ; ++p) {
+        if (*p == '.')
+            last_dot = p;
+    }
+    return last_dot ? last_dot : p;
+}
+
+std::string base_name(const char* path) {
+    const char *filename = file_name(path);
+    return {filename, last_dot_of(filename)};
 }
 
 // convenient shorthand for removing based on predicate
