@@ -2,7 +2,7 @@
 #include <fstream>
 #include <limits>
 #include <string>
-#include "util.h"
+#include "util/util.h"
 
 void process_file(std::ifstream& infile) {
     unsigned int now, prev = std::numeric_limits<unsigned int>::max(), largers = 0;

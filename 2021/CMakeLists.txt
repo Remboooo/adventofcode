@@ -13,7 +13,9 @@ endif()
 
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
-add_library(util util.cpp util.h args.hxx circular_buffer.h)
+include_directories(BEFORE util)
+
+add_library(util util/util.cpp util/util.h util/circular_buffer.h util/argparse.hpp)
 link_libraries(util)
 
 add_executable(1-1 1-1.cpp)

@@ -4,7 +4,7 @@
 #include <string>
 #include <utility>
 
-#include "args.hxx"
+#include "argparse.hpp"
 
 class UserError : std::exception {
 public:
@@ -18,13 +18,15 @@ private:
 };
 
 int run(int argc, const char** argv, const char* name, auto arg_processor, auto file_processor) {
-    args::ArgumentParser parser(name, "");
-    args::HelpFlag help(parser, "help", "Display this help menu", {'h', "help"});
+    argparse::ArgumentParser parser(name);
+
+    parser.add_argument("files").remaining();
+
     arg_processor(parser);
-    args::PositionalList<std::string> filenames(parser, "files", "The input files to process");
+
     try {
-        parser.ParseCLI(argc, argv);
-        for (auto& filename : args::get(filenames)) {
+        parser.parse_args(argc, argv);
+        for (auto& filename : parser.get<std::vector<std::string>>("files")) {
             std::cout << "Processing " << filename << std::endl;
             std::ifstream f;
             f.exceptions(std::ifstream::badbit);
@@ -37,22 +39,16 @@ int run(int argc, const char** argv, const char* name, auto arg_processor, auto 
             }
         }
         return 0;
-    } catch (const args::Completion& e) {
-        std::cout << e.what();
-        return 0;
-    } catch (const args::Help&) {
-        std::cout << parser;
-        return 0;
-    } catch (const args::ParseError& e) {
-        std::cerr << e.what() << std::endl;
+    } catch (const std::runtime_error& err) {
+        std::cerr << err.what() << std::endl;
         std::cerr << parser;
-        return 1;
+        std::exit(1);
     } catch (const UserError& e) {
         std::cerr << e.what() << std::endl;
-        return 2;
+        std::exit(2);
     } catch (const std::exception& e) {
         std::cerr << e.what() << std::endl;
-        return 255;
+        std::exit(255);
     }
 }
 
@@ -106,4 +102,8 @@ void remove_if(auto& container, auto predicate) {
 
 void keep_if(auto& container, auto predicate) {
     remove_if(container, [predicate](auto v){return !predicate(v);});
+}
+
+unsigned long long count_if(auto& container, auto predicate) {
+    return std::count_if(container.begin(), container.end(), predicate);
 }

@@ -1,7 +1,7 @@
 #include <iostream>
 #include <fstream>
 #include <string>
-#include "util.h"
+#include "util/util.h"
 
 void process_file(std::ifstream& infile) {
     std::string direction;

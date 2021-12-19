@@ -2,7 +2,7 @@
 #include <fstream>
 #include <string>
 #include <limits>
-#include "util.h"
+#include "util/util.h"
 
 void process_file(std::ifstream& infile) {
     std::vector<unsigned> numbers{};
@@ -20,54 +20,49 @@ void process_file(std::ifstream& infile) {
         chars = std::max(chars, line_chars);
     }
 
-    auto ox_candidates = numbers;
-    auto co2_candidates = numbers;
+    auto get_candidate = [numbers, chars](bool want_popular){
+        auto candidates = numbers; // make a copy
 
 #if defined(DEBUG)
-    std::cout << "CO2 candidates " << co2_candidates << std::endl;
-    std::cout << "OX candidates " << ox_candidates << std::endl;
+        std::cout << "Finding candidates with " << (want_popular ? "popular" : "unpopular") << " bits" << std::endl;
 #endif
 
-    for (unsigned pos = chars; pos > 0; --pos) {
-        unsigned bitmask = 1 << (pos-1);
-        unsigned one_count = std::count_if(
-                numbers.begin(), numbers.end(), [bitmask](unsigned v) { return v & bitmask; }
-        );
-        bool one_is_popular = (one_count > numbers.size() / 2);
-        bool tie = (one_count == numbers.size() / 2);
+        for (unsigned pos = chars; pos > 0; --pos) {
+            unsigned bitmask = 1 << (pos - 1);
+            unsigned one_count = count_if(candidates, [bitmask](unsigned v) { return v & bitmask; });
+
+            bool one_is_popular = (one_count > (candidates.size() / 2));
+            bool tie = (one_count*2 == candidates.size());
 
 #if defined(DEBUG)
-        std::cout << "pos " << pos << ": ";
-        if (tie) {
-            std::cout << "tie";
-        } else {
-            std::cout << (one_is_popular ? "popular 1" : "popular 0");
-        }
-        std::cout << std::endl;
+            std::cout
+                << "count " << one_count << " 1bits, " << (candidates.size() - one_count) << " 0bits; "
+                << "popular " << one_is_popular << ", tie " << tie << std::endl;
 #endif
 
-        if (ox_candidates.size() > 1) {
-            bool want_one = one_is_popular || tie;
-            keep_if(ox_candidates, [bitmask, want_one](unsigned v) { return want_one == bool(v & bitmask); });
-        }
+            bool want_one;
+            if (tie) {
+                want_one = want_popular;
+            } else {
+                want_one = (one_is_popular == want_popular);
+            }
 
-        if (co2_candidates.size() > 1) {
-            bool want_one = !one_is_popular && !tie;
-            keep_if(co2_candidates, [bitmask, want_one](unsigned v) { return want_one == bool(v & bitmask); });
-        }
+            keep_if(candidates, [bitmask, want_one](unsigned v) { return want_one == bool(v & bitmask); });
 
 #if defined(DEBUG)
-        std::cout << "OX candidates " << ox_candidates << std::endl;
-        std::cout << "CO2 candidates " << co2_candidates << std::endl;
+            std::cout << "candidates " << std::hex << candidates << std::dec << std::endl;
 #endif
-    }
 
-    if (ox_candidates.size() != 1 || co2_candidates.size() != 1) throw UserError("Not exactly 1 candidate left for OX/CO2");
+            if (candidates.size() == 1) return candidates.at(0);
+        }
 
-    unsigned co2 = co2_candidates.at(0);
-    unsigned ox = ox_candidates.at(0);
+        throw UserError("Not exactly 1 candidate left");
+    };
 
-    std::cout << "OX " << ox << ", CO2 " << co2 << ", answer = " << (co2 * ox) << std::endl;
+    auto ox = get_candidate(true);
+    auto co2 = get_candidate(false);
+
+    std::cout << std::hex << "OX " << ox << ", CO2 " << co2 << std::dec << ", answer = " << (co2 * ox) << std::endl;
 }
 
 int main(int argc, const char** argv) {

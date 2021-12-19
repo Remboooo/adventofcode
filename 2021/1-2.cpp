@@ -3,8 +3,8 @@
 #include <limits>
 #include <string>
 #include <numeric>
-#include "circular_buffer.h"
-#include "util.h"
+#include "util/circular_buffer.h"
+#include "util/util.h"
 
 void process_file(std::ifstream& infile) {
     unsigned int now, prev = std::numeric_limits<unsigned int>::max(), largers = 0;
