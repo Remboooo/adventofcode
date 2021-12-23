@@ -61,9 +61,34 @@ void transform_inplace(T& container, auto function) {
     std::transform(std::cbegin(container), std::cend(container), std::begin(container), function);
 }
 
+template<class T, class U>
+std::vector<U> transform(std::vector<T>& container, auto function) {
+    std::vector<U> result(container.size, U());
+    std::transform(std::cbegin(container), std::cend(container), std::begin(result), function);
+    return result;
+}
+
 template<class T>
 bool contains(const auto& container, const T& value) {
     return std::find(std::cbegin(container), std::cend(container), value) != std::cend(container);
+}
+
+template<class T>
+long index_of(const auto& container, const T& value) {
+    auto cbegin = std::cbegin(container);
+    auto i = std::find(cbegin, std::cend(container), value);
+    if (i != std::cend(container)) return long(i - cbegin);
+    return -1L;
+}
+
+template<class T>
+void sort(T& container) {
+    std::sort(std::begin(container), std::end(container));
+}
+
+template<class T>
+bool next_permutation(T& container) {
+    return std::next_permutation(std::begin(container), std::end(container));
 }
 
 // this would be ridiculously faster as a view rather than a copy. can't be arsed atm.
@@ -89,11 +114,29 @@ std::pair<T, T> ordered(std::pair<T, T> unordered) {
     }
 }
 
+template <typename L, typename R> void append(L& lhs, R const& rhs) {
+    lhs.insert(std::end(lhs), std::cbegin(rhs), std::cend(rhs));
+}
+
+template <typename T> T appended(std::initializer_list<const T /* can't make this &, dunno why */> lists ) {
+    T result;
+    for (auto& list : lists) result.insert(std::end(result), std::cbegin(list), std::cend(list));
+    return result;
+}
+
 template <class T, class A = std::allocator<T> >
 class inf_vec;
 
 template <class T, class A = std::allocator<T> >
 void swap(inf_vec<T,A>& v1, inf_vec<T,A>& v2) { swap(v1.vec, v2.vec); }
+
+template<class T>
+bool in(T& v, std::initializer_list<T> vs) {
+    for (auto& c : vs) {
+        if (v == c) return true;
+    }
+    return false;
+}
 
 template <class T, class A>
 class inf_vec {

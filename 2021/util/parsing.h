@@ -15,7 +15,7 @@ constexpr auto stoul = [](const std::string& s){return std::stoul(s);};
 constexpr auto stoull = [](const std::string& s){return std::stoull(s);};
 
 template <typename T>
-std::vector<T> string_split(const std::string& s, const std::string& sep, auto converter=[](const std::string& v){return v;}, bool skip_empty=true) {
+std::vector<T> string_split(const std::string& s, const std::string& sep, auto converter, bool skip_empty=true) {
     std::regex splitter(sep);
     std::vector<T> t{};
 
@@ -29,6 +29,10 @@ std::vector<T> string_split(const std::string& s, const std::string& sep, auto c
     }
 
     return t;
+}
+
+std::vector<std::string> string_split(const std::string& s, const std::string& sep, bool skip_empty=true) {
+    return string_split<std::string>(s, sep, [](const std::string& v){return v;}, skip_empty);
 }
 
 template <typename T>

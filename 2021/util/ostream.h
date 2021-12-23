@@ -5,6 +5,7 @@
 #include <string>
 #include <regex>
 #include <utility>
+#include <set>
 
 
 void ostream_container(std::ostream& o, const auto& arr, const std::string& sep=",") {
@@ -26,6 +27,12 @@ std::ostream& operator<<(std::ostream& o, const std::vector<T>& vec) {
     o << "["; ostream_container(o, vec, ","); o << "]"; return o;
 }
 
+// Support for outputting sets
+template <class T>
+std::ostream& operator<<(std::ostream& o, const std::set<T>& vec) {
+    o << "{"; ostream_container(o, vec, ","); o << "}"; return o;
+}
+
 // Support for outputting nested vectors (separate with newlines)
 template <class T>
 std::ostream& operator<<(std::ostream& o, const std::vector<std::vector<T>>& vec) {
@@ -36,6 +43,17 @@ std::ostream& operator<<(std::ostream& o, const std::vector<std::vector<T>>& vec
 template <class T1, class T2>
 std::ostream& operator<<(std::ostream& o, const std::pair<T1, T2>& pair) {
     return o << "(" << pair.first << "," << pair.second << ")";
+}
+
+// Support for outputting maps
+template <class K, class V>
+std::ostream& operator<<(std::ostream& o, const std::unordered_map<K, V>& map) {
+    o << "{";
+    for (auto iter = std::cbegin(map); iter != std::cend(map); iter++) {
+        if (iter != std::cbegin(map)) o << ", ";
+        o << iter->first << ": " << iter->second;
+    }
+    return o << "}";
 }
 
 
