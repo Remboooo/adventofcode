@@ -36,5 +36,11 @@ std::pair<T, T> pair(const std::vector<T>& vec) {
     return std::make_pair(vec.at(0), vec.at(1));
 }
 
+std::string getline(std::istream& i) {
+    std::string result;
+    std::getline(i, result);
+    return result;
+}
+
 
 #endif //AOC2021_PARSING_H

@@ -1,5 +1,7 @@
 #pragma once
 
+#define static_fail(msg) []<bool flag = false>(){static_assert(flag, msg);}()
+
 #include <fstream>
 #include <string>
 #include <regex>
@@ -16,3 +18,5 @@
 #else
 #   define dbg(X)  do{}while(false)
 #endif
+
+

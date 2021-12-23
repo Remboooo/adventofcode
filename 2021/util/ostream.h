@@ -17,13 +17,13 @@ void ostream_container(std::ostream& o, const auto& arr, const std::string& sep=
 // Support for outputting arrays
 template <class T, std::size_t N>
 std::ostream& operator<<(std::ostream& o, const std::array<T, N>& arr) {
-    o << "["; ostream_container(o, arr, ", "); o << "]"; return o;
+    o << "["; ostream_container(o, arr, ","); o << "]"; return o;
 }
 
 // Support for outputting vectors
 template <class T>
 std::ostream& operator<<(std::ostream& o, const std::vector<T>& vec) {
-    o << "["; ostream_container(o, vec, ", "); o << "]"; return o;
+    o << "["; ostream_container(o, vec, ","); o << "]"; return o;
 }
 
 // Support for outputting nested vectors (separate with newlines)

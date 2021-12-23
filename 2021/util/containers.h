@@ -53,7 +53,12 @@ T accumulate(const auto& container, T initial, auto binary_op) {
 
 template<class T>
 T accumulate(const auto& container) {
-    return std::accumulate(std::cbegin(container), std::cend(container));
+    return std::accumulate(std::cbegin(container), std::cend(container), T());
+}
+
+template<class T>
+void transform_inplace(T& container, auto function) {
+    std::transform(std::cbegin(container), std::cend(container), std::begin(container), function);
 }
 
 template<class T>

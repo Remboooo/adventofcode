@@ -6,7 +6,10 @@
 #include <regex>
 #include <utility>
 
+#include "util.h"
 #include "argparse.hpp"
+
+typedef argparse::ArgumentParser args;
 
 class UserError : std::exception {
 public:
@@ -19,12 +22,13 @@ private:
     std::string msg;
 };
 
-int run(int argc, const char** argv, const std::string& name, auto arg_processor, auto file_processor) {
+template<class F>
+int run(int argc, const char** argv, const std::string& name, auto arg_processor, F file_processor) {
     argparse::ArgumentParser parser(name);
 
-    parser.add_argument("files").remaining();
-
     arg_processor(parser);
+
+    parser.add_argument("files").remaining();
 
     std::cout << std::boolalpha; // Set booleans to be output as text
 
@@ -36,7 +40,13 @@ int run(int argc, const char** argv, const std::string& name, auto arg_processor
             f.exceptions(std::ifstream::badbit);
             try {
                 f.open(filename);
-                file_processor(f);
+                if constexpr (std::is_invocable_v<F, std::ifstream&>) {
+                    file_processor(f);
+                }
+                else if constexpr (std::is_invocable_v<F, std::ifstream&, argparse::ArgumentParser&>) {
+                    file_processor(f, parser);
+                }
+                else static_fail("file_processor must be callable with (ifstream&) or (ifstream&, args&)");
             } catch (std::ios_base::failure& e) {
                 std::cerr << "Could not read " << filename << std::endl;
                 return 3;
