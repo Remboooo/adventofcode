@@ -31,5 +31,10 @@ std::vector<T> string_split(const std::string& s, const std::string& sep, auto c
     return t;
 }
 
+template <typename T>
+std::pair<T, T> pair(const std::vector<T>& vec) {
+    return std::make_pair(vec.at(0), vec.at(1));
+}
+
 
 #endif //AOC2021_PARSING_H

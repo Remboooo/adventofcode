@@ -14,6 +14,7 @@ endif()
 set(CMAKE_CXX_FLAGS_DEBUG "${CMAKE_CXX_FLAGS_DEBUG} -DDEBUG")
 
 include_directories(BEFORE util)
+include_directories(SYSTEM shared/blaze/)
 
 add_library(util util/util.cpp util/util.h util/circular_buffer.h util/argparse.hpp util/ostream.h util/parsing.h util/run.h util/containers.h)
 link_libraries(util)
@@ -26,3 +27,5 @@ add_executable(3-1 3-1.cpp)
 add_executable(3-2 3-2.cpp)
 add_executable(4-1 4-1.cpp)
 add_executable(4-2 4-2.cpp)
+add_executable(5-1 5-1.cpp)
+add_executable(5-2 5-2.cpp)

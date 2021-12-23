@@ -1,0 +1,3 @@
+[submodule "2021/shared/blaze"]
+	path = 2021/shared/blaze
+	url = https://bitbucket.org/blaze-lib/blaze.git

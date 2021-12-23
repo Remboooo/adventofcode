@@ -68,21 +68,22 @@ void process_file(std::ifstream& infile) {
 
         if (winning_cards.size() == cards.size()) {
             if (winning_cards.size() > 1) {
-                std::cout << "Multiple winning cards" << std::endl;
+                std::cout << "Multiple winning last cards: " << winning_cards << std::endl;
+                return;
             } else {
                 auto &card = winning_cards.at(0);
-                std::cout << "Winning card:" << std::endl << card << std::endl;
+                dbg(std::cout << "Winning card:" << std::endl << card << std::endl);
                 int unmarked_sum = accumulate(card, 0, [](int v, const auto &row) {
                     return v + accumulate(row, 0, [](int v, const field &f) {
                         return v + (f.second ? 0 : f.first);
                     });
                 });
-                std::cout << "Unmarked sum: " << unmarked_sum << std::endl;
+                dbg(std::cout << "Unmarked sum: " << unmarked_sum << std::endl);
                 std::cout << "Answer: " << (draw * unmarked_sum) << std::endl;
                 return;
             }
         } else {
-            remove_if(cards, [&](auto& c){return contains(winning_cards, c);});
+            remove_if(cards, [&](const card& c){return contains(winning_cards, c);});
             dbg(std::cout << "Remaining cards: " << cards.size() << std::endl);
         }
     }
