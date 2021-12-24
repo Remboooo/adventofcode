@@ -61,9 +61,9 @@ void transform_inplace(T& container, auto function) {
     std::transform(std::cbegin(container), std::cend(container), std::begin(container), function);
 }
 
-template<class T, class U>
-std::vector<U> transform(std::vector<T>& container, auto function) {
-    std::vector<U> result(container.size, U());
+template<class U>
+std::vector<U> transform(auto& container, auto function) {
+    std::vector<U> result(container.size(), U());
     std::transform(std::cbegin(container), std::cend(container), std::begin(result), function);
     return result;
 }
@@ -84,6 +84,11 @@ long index_of(const auto& container, const T& value) {
 template<class T>
 void sort(T& container) {
     std::sort(std::begin(container), std::end(container));
+}
+
+template<class T>
+void rsort(T& container) {
+    std::sort(std::rbegin(container), std::rend(container));
 }
 
 template<class T>
@@ -136,6 +141,20 @@ bool in(T& v, std::initializer_list<T> vs) {
         if (v == c) return true;
     }
     return false;
+}
+
+template<class T>
+void pad2d(std::vector<std::vector<T>>& vec, size_t width, T val) {
+    size_t row_width = 0;
+    for (auto& row : vec) {
+        row_width = row.size();
+        row.insert(row.cbegin(), val);
+        row.push_back(val);
+    }
+    for (size_t s = 0; s < width; ++s) {
+        vec.insert(vec.cbegin(), std::vector<T>(row_width+2, val));
+        vec.push_back(std::vector<T>(row_width+2, val));
+    }
 }
 
 template <class T, class A>
