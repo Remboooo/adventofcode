@@ -41,7 +41,7 @@ size_t get_basin_size(unsigned start_x, unsigned start_y, const heightmap& map) 
         done.insert(now);
 
         auto [x, y] = now;
-        if (map.at(y).at(x) < 9) {
+        if (map[y][x] < 9) {
             ++s;
             auto left = std::make_pair(x-1, y);
             auto right = std::make_pair(x+1, y);
