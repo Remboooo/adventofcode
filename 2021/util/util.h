@@ -20,3 +20,7 @@
 #endif
 
 
+typedef long long ll;
+typedef unsigned long long ull;
+typedef __int128_t lll;
+typedef __uint128_t ulll;

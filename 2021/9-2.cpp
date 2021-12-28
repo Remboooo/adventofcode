@@ -7,16 +7,9 @@
 typedef std::vector<std::vector<int>> heightmap;
 
 heightmap read_heightmap(std::ifstream& infile) {
-    std::string line;
     std::vector<std::vector<int>> result;
-    unsigned height = 0;
-
-    while (true) {
-        std::getline(infile, line);
-        if (infile.eof()) break;
-        auto row = transform<int>(line, [](char c) { return c - '0'; });
-        result.push_back(row);
-        ++height;
+    for (std::string line; !std::getline(infile, line).eof();) {
+        result.push_back(transform<int>(line, [](char c) { return c - '0'; }));
     }
 
     return result;
