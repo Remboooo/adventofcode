@@ -40,6 +40,9 @@ int run(int argc, const char** argv, const std::string& name, auto arg_processor
             f.exceptions(std::ifstream::badbit);
             try {
                 f.open(filename);
+                if (!f.is_open()) {
+                    throw UserError("Could not open " + filename);
+                }
                 if constexpr (std::is_invocable_v<F, std::ifstream&>) {
                     file_processor(f);
                 }
