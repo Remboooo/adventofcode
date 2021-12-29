@@ -15,8 +15,10 @@
 
 #if defined(DEBUG)
 #   define dbg(X) do{X;}while(false)
+#   define is_dbg() (1)
 #else
 #   define dbg(X)  do{}while(false)
+#   define is_dbg() (0)
 #endif
 
 

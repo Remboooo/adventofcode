@@ -45,15 +45,46 @@ std::ostream& operator<<(std::ostream& o, const std::pair<T1, T2>& pair) {
     return o << "(" << pair.first << "," << pair.second << ")";
 }
 
+template<std::size_t I = 0, typename... T>
+typename std::enable_if<I == sizeof...(T), std::ostream&>::type
+static _out_tup(std::ostream& o, const std::tuple<T...>&) {
+    return o;
+}
+
+template<std::size_t I = 0, typename... T>
+typename std::enable_if<I < sizeof...(T), std::ostream&>::type
+static _out_tup(std::ostream& o, const std::tuple<T...>& tup) {
+    if constexpr (I != 0) o << ",";
+    o << std::get<I>(tup);
+    return _out_tup<I+1>(o, tup);
+}
+
+// Support for outputting tuples
+template <class... T>
+std::ostream& operator<<(std::ostream& o, const std::tuple<T...>& tup) {
+    o << "("; _out_tup(o, tup); return o << ")";
+}
+
 // Support for outputting shared_ptr
 template <class T>
 std::ostream& operator<<(std::ostream& o, const std::shared_ptr<T> c) {
     return o << *c;
 }
 
+// Support for outputting unordered maps
+template <class K, class V, class H, class P, class A>
+std::ostream& operator<<(std::ostream& o, const std::unordered_map<K, V, H, P, A>& map) {
+    o << "{";
+    for (auto iter = std::cbegin(map); iter != std::cend(map); iter++) {
+        if (iter != std::cbegin(map)) o << ", ";
+        o << iter->first << ": " << iter->second;
+    }
+    return o << "}";
+}
+
 // Support for outputting maps
-template <class K, class V>
-std::ostream& operator<<(std::ostream& o, const std::unordered_map<K, V>& map) {
+template <class K, class V, class C, class A>
+std::ostream& operator<<(std::ostream& o, const std::map<K, V, C, A>& map) {
     o << "{";
     for (auto iter = std::cbegin(map); iter != std::cend(map); iter++) {
         if (iter != std::cbegin(map)) o << ", ";

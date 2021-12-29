@@ -4,41 +4,33 @@
 #include <utility>
 #include "util.h"
 
-struct Cave {
+struct CaveObj {
     const std::string name;
     const bool is_big;
 
-    explicit Cave(const std::string &name) :
+    explicit CaveObj(const std::string &name) :
         name(name),
         is_big(all_match(name, [](char c){ return std::isupper(c); })) {
     }
 
     // Needed for usage as value type in std::set
-    bool operator<(const Cave& other) const {
+    bool operator<(const CaveObj& other) const {
         return name < other.name;
     }
 };
 
 // Needed for debug output
-std::ostream& operator<<(std::ostream& o, const Cave& c) {
+std::ostream& operator<<(std::ostream& o, const CaveObj& c) {
     return o << c.name;
 }
 
-// This comparator compares the objects pointed to by std::shared_ptr objects, in stead of the pointers themselves
-static auto shared_ptr_obj_comparator = [](const auto& a, const auto& b) { return *a < *b; };
-typedef decltype(shared_ptr_obj_comparator) shared_ptr_obj_comparator_t;
-// This set ensures unique Cave objects
-typedef std::set<std::shared_ptr<Cave>, shared_ptr_obj_comparator_t> cave_set_t;
-// This map contains connections between caves, but only using (fast) pointer comparisons between std::shared_ptr<Cave>
-// objects. This works because the cave_set_t above ensures we only have 1 instance of every distinct Cave.
-typedef std::map<std::shared_ptr<Cave>, std::set<std::shared_ptr<Cave>>> connection_map_t;
-typedef std::vector<std::shared_ptr<Cave>> route_t;
+typedef std::shared_ptr<CaveObj> Cave;
 
 int count_routes(
-        const std::shared_ptr<Cave>& start,
-        const std::shared_ptr<Cave>& dest,
-        connection_map_t& connections,
-        const route_t& visited = {}
+        const Cave& start,
+        const Cave& dest,
+        std::map<Cave, std::set<Cave>>& connections,
+        const std::vector<Cave>& visited = {}
         ) {
 
     if (start == dest) {
@@ -46,7 +38,7 @@ int count_routes(
         dbg(std::cout << dest->name << std::endl);
         return 1;
     }
-    route_t new_visited = appended({visited, {start}});
+    std::vector<Cave> new_visited = appended({visited, {start}});
     int result = 0;
     for (const auto& next_hop : connections[start]) {
         if (!next_hop->is_big && contains(visited, next_hop)) continue;
@@ -56,18 +48,18 @@ int count_routes(
 }
 
 void process_file(std::ifstream& infile) {
-    cave_set_t caves;
-    connection_map_t connections;
+    std::set<Cave, shared_ptr_obj_comparator_t> caves;
+    std::map<Cave, std::set<Cave>> connections;
     for (std::string line; !std::getline(infile, line).eof();) {
-        auto [a, b] = pair(string_split<std::shared_ptr<Cave>>(line, "-", [&caves](const std::string& name){
-            return *caves.insert(std::make_shared<Cave>(name)).first;
+        auto [a, b] = pair(string_split<Cave>(line, "-", [&caves](const std::string& name){
+            return *caves.insert(std::make_shared<CaveObj>(name)).first;
         }));
         connections[a].insert(b);
         connections[b].insert(a);
     }
 
-    auto start = *caves.find(std::make_shared<Cave>("start"));
-    auto end = *caves.find(std::make_shared<Cave>("end"));
+    auto start = *caves.find(std::make_shared<CaveObj>("start"));
+    auto end = *caves.find(std::make_shared<CaveObj>("end"));
 
     int answer = count_routes(start, end, connections);
 

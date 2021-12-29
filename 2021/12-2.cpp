@@ -4,85 +4,108 @@
 #include <utility>
 #include "util.h"
 
-struct Cave {
+struct CaveObj {
     const std::string name;
     const bool is_big;
     const bool is_special;
 
-    explicit Cave(const std::string &name) :
+    explicit CaveObj(const std::string &name) :
         name(name),
         is_big(all_match(name, [](char c){ return std::isupper(c); })),
         is_special(name == "start" || name == "end"
         ){}
 
     // Needed for usage as value type in std::set
-    bool operator<(const Cave& other) const {
+    bool operator<(const CaveObj &other) const {
         return name < other.name;
     }
 };
 
 // Needed for debug output
-std::ostream& operator<<(std::ostream& o, const Cave& c) {
+std::ostream& operator<<(std::ostream &o, const CaveObj &c) {
     return o << c.name;
 }
 
-// This comparator compares the objects pointed to by std::shared_ptr objects, in stead of the pointers themselves
-static auto shared_ptr_obj_comparator = [](const auto& a, const auto& b) { return *a < *b; };
-typedef decltype(shared_ptr_obj_comparator) shared_ptr_obj_comparator_t;
-// This set ensures unique Cave objects
-typedef std::set<std::shared_ptr<Cave>, shared_ptr_obj_comparator_t> cave_set_t;
-// This map contains connections between caves, but only using (fast) pointer comparisons between std::shared_ptr<Cave>
-// objects. This works because the cave_set_t above ensures we only have 1 instance of every distinct Cave.
-typedef std::map<std::shared_ptr<Cave>, std::set<std::shared_ptr<Cave>>> connection_map_t;
-typedef std::vector<std::shared_ptr<Cave>> route_t;
+typedef std::shared_ptr<CaveObj> Cave;
 
 int count_routes(
-        const std::shared_ptr<Cave>& start,
-        const std::shared_ptr<Cave>& dest,
-        connection_map_t& connections,
-        const route_t& visited = {},
-        const bool has_twice_visited_cave = false
-        ) {
+        const Cave &start, // where we are currently
+        const Cave &dest, // where we want to be
+        const std::map<Cave, std::set<Cave>> &connections, // the set of other caves connected to each cave
+        const std::set<Cave> &visited_set, // the set of all small caves we visited so far
+        const bool twice_small_allowed, // whether we can still visit a cave twice
+        const std::shared_ptr<std::map<std::tuple<std::set<Cave>, Cave, bool>, int>> &memo, // result cache
+        const std::vector<Cave> &visited, // only for debug output
+        const int indent = 0 // only for debug output
+    ) {
 
     if (start == dest) {
-        dbg(for (const auto& hop : visited) std::cout << hop->name << ",");
-        dbg(std::cout << dest->name << std::endl);
+        dbg(std::cout << std::string(indent, ' ') << visited << " = 1" << std::endl;);
         return 1;
     }
-    route_t new_visited = appended({visited, {start}});
+
+    const auto memo_key = std::make_tuple(visited_set, start, twice_small_allowed);
+    auto memo_it = memo->find(memo_key);
+    if (memo_it != memo->end()) {
+        dbg(std::cout << std::string(indent, ' ') << visited << " ... = " << memo_it->second << " " << memo_key << std::endl);
+        return memo_it->second;
+    }
+
     int result = 0;
-    for (const auto& next_hop : connections[start]) {
-        bool new_has_twice_visited_cave = has_twice_visited_cave;
-        if (!next_hop->is_big) {
-            auto count = count_if(visited, [&next_hop](auto& v){ return v == next_hop; });
-            if (!next_hop->is_special && count == 1 && !has_twice_visited_cave) {
-                new_has_twice_visited_cave = true;
-            } else if (count != 0) {
+    for (auto &next_hop : connections.at(start)) {
+        bool new_twice_small_allowed = twice_small_allowed;
+
+        if (visited_set.contains(next_hop)) {
+            if (twice_small_allowed && !next_hop->is_special) {
+                new_twice_small_allowed = false;
+            } else {
                 continue;
             }
         }
-        result += count_routes(next_hop, dest, connections, new_visited, new_has_twice_visited_cave);
+
+        std::set<Cave> new_visited_set = visited_set;
+        if (!next_hop->is_big) {
+            new_visited_set.insert(next_hop);
+        }
+
+        result += count_routes(
+                next_hop, dest, connections, new_visited_set, new_twice_small_allowed, memo,
+                is_dbg() ? appended({visited, {next_hop}}) : visited, indent + 1
+        );
     }
+
+    dbg(std::cout << std::string(indent, ' ') << "Memoizing ");
+    dbg(std::cout << visited << " ... = " << result << " " << memo_key << std::endl);
+    (*memo)[memo_key] = result;
+
     return result;
 }
 
-void process_file(std::ifstream& infile) {
-    cave_set_t caves;
-    connection_map_t connections;
+int count_routes(
+        const Cave &start,
+        const Cave &dest,
+        const std::map<Cave, std::set<Cave>> &connections
+) {
+    auto memo_pad = std::make_shared<std::map<std::tuple<std::set<Cave>, Cave, bool>, int>>();
+    return count_routes(start, dest, connections, {start}, true, memo_pad, {start});
+}
+
+void process_file(std::ifstream &infile) {
+    // This set compares the objects themselves in stead of the "shared_ptr"s to ensure only unique CaveObj objects exist
+    std::set<Cave, shared_ptr_obj_comparator_t> caves;
+    std::map<Cave, std::set<Cave>> connections;
     for (std::string line; !std::getline(infile, line).eof();) {
-        auto [a, b] = pair(string_split<std::shared_ptr<Cave>>(line, "-", [&caves](const std::string& name){
-            return *caves.insert(std::make_shared<Cave>(name)).first;
+        auto [a, b] = pair(string_split<Cave>(line, "-", [&caves](const std::string& name){
+            return *caves.insert(std::make_shared<CaveObj>(name)).first;
         }));
         connections[a].insert(b);
         connections[b].insert(a);
     }
-
-    auto start = *caves.find(std::make_shared<Cave>("start"));
-    auto end = *caves.find(std::make_shared<Cave>("end"));
-
-    int answer = count_routes(start, end, connections);
-
-    std::cout << "Answer: " << answer << std::endl;
+    std::cout << "Answer: "
+        << count_routes(*caves.find(std::make_shared<CaveObj>("start")),
+                        *caves.find(std::make_shared<CaveObj>("end")),
+                        connections)
+        << std::endl;
 }
 
 int main(int argc, const char** argv) {

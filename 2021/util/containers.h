@@ -1,6 +1,9 @@
 #ifndef AOC2021_CONTAINERS_H
 #define AOC2021_CONTAINERS_H
 
+// This comparator compares the objects pointed to by std::shared_ptr objects, in stead of the pointers themselves
+static auto shared_ptr_obj_comparator = [](const auto& a, const auto& b) { return *a < *b; };
+typedef decltype(shared_ptr_obj_comparator) shared_ptr_obj_comparator_t;
 
 // Remove stuff in a container if it matches a predicate
 void remove_if(auto& container, auto predicate) {
@@ -18,10 +21,10 @@ void keep_if(auto& container, auto predicate) {
 }
 
 // Keep only stuff in a container if it matches a predicate
-template<class T>
-std::vector<T> copy_if(const std::vector<T>& container, auto predicate) {
-    std::vector<T> result{};
-    std::copy_if(std::cbegin(container), std::cend(container), std::back_inserter(result), predicate);
+template<class T, class A = typename std::vector<T>::allocator_type>
+std::vector<T, A> copy_if(const std::vector<T, A>& container, auto predicate) {
+    std::vector<T, A> result{};
+    std::copy_if(std::begin(container), std::end(container), std::back_inserter(result), predicate);
     return result;
 }
 
@@ -29,7 +32,21 @@ std::vector<T> copy_if(const std::vector<T>& container, auto predicate) {
 template<class T>
 std::vector<T&> copy_ref_if(std::vector<T>& container, auto predicate) {
     std::vector<T&> result{};
-    std::copy_if(std::cbegin(container), std::cend(container), std::begin(result), predicate);
+    std::copy_if(std::begin(container), std::end(container), std::begin(result), predicate);
+    return result;
+}
+
+template<class T, class C = typename std::set<T>::key_compare, class A = typename std::set<T>::allocator_type>
+std::set<T, C, A> copy_if(const std::set<T, C, A>& container, auto predicate) {
+    std::set<T, C, A> result{};
+    for (const T& v : container) if (predicate(v)) result.insert(v);
+    return result;
+}
+
+template<class T, class C = typename std::set<T>::key_compare, class A = typename std::set<T>::allocator_type, class V, class MC, class MA>
+std::set<T, C, A> key_set(std::map<T, V, MC, MA> container) {
+    std::set<T, C, A> result{};
+    for (const auto& v : container) result.insert(v.first);
     return result;
 }
 
