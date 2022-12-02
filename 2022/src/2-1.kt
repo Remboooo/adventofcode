@@ -7,26 +7,18 @@ fun main(args: Array<String>) {
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
-    val lines = File(input).readLines()
-
     val shapePoints = mapOf('X' to 1, 'Y' to 2, 'Z' to 3)
     val winIf = mapOf('X' to 'C', 'Z' to 'B', 'Y' to 'A')
     val drawIf = mapOf('X' to 'A', 'Y' to 'B', 'Z' to 'C')
 
-    var score = 0
-    for (line in lines) {
-        val me = line.toCharArray()[2]
-        val them = line.toCharArray()[0]
-
-        score += shapePoints[me]!!
-
-        if (winIf[me]!! == them) {
-            score += 6
+    println(
+        File(input).readLines().sumOf {
+            val (them, _, me) = it.toCharArray()
+            shapePoints[me]!! + when(them) {
+                winIf[me]!! -> 6
+                drawIf[me]!! -> 3
+                else -> 0
+            }
         }
-        else if (drawIf[me]!! == them) {
-            score += 3
-        }
-    }
-
-    println(score)
+    )
 }

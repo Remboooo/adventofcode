@@ -7,18 +7,11 @@ fun main(args: Array<String>) {
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
-    val lines = File(input).readLines()
-
     val points = mapOf(
         "A X" to 3+0, "A Y" to 1+3, "A Z" to 2+6,
         "B X" to 1+0, "B Y" to 2+3, "B Z" to 3+6,
         "C X" to 2+0, "C Y" to 3+3, "C Z" to 1+6,
     )
 
-    var score = 0
-    for (line in lines) {
-        score += points[line]!!
-    }
-
-    println(score)
+    println(File(input).readLines().sumOf { points[it]!! })
 }
