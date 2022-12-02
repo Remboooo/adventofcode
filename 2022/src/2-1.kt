@@ -1,6 +1,5 @@
 import kotlinx.cli.*
 import java.io.File
-import kotlin.math.max
 
 fun main(args: Array<String>) {
     val parser = ArgParser("AoC day 2 part 1")
