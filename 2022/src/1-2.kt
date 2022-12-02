@@ -7,20 +7,11 @@ fun main(args: Array<String>) {
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
-    val lines = File(input).readLines()
-
-    var elveCalories = mutableListOf<Int>()
-    var calories = 0;
-    for (line in lines) {
-        if (line.isNotBlank()) {
-            calories += line.toInt()
-        } else {
-            elveCalories.add(calories)
-            calories = 0
-        }
+    val currentBest = mutableListOf<Int>()
+    File(input).readLines().fold(0) { current, line ->
+        if (line.isBlank()) { currentBest.add(current); 0 }
+        else current + line.toInt()
     }
 
-    elveCalories.sortDescending()
-
-    println(elveCalories.slice(0..2).sum())
+    println(currentBest.sortedDescending().slice(0..2).sum())
 }

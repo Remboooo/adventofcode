@@ -7,18 +7,10 @@ fun main(args: Array<String>) {
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
-    val lines = File(input).readLines()
-
-    var maxCalories = 0;
-    var calories = 0;
-    for (line in lines) {
-        if (line.isNotBlank()) {
-            calories += line.toInt()
-        } else {
-            maxCalories = max(calories, maxCalories)
-            calories = 0
-        }
-    }
-
-    println(maxCalories)
+    println(
+        File(input).readLines().fold(Pair(0, 0)) { (currentMax, current), line ->
+            if (line.isBlank()) Pair(max(currentMax, current), 0)
+            else Pair(currentMax, current + line.toInt())
+        }.first
+    )
 }
