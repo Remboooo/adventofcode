@@ -3,7 +3,7 @@ import java.io.File
 import kotlin.math.max
 
 fun main(args: Array<String>) {
-    val parser = ArgParser("AoC day 2 part 1")
+    val parser = ArgParser("AoC day 2 part 2")
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
