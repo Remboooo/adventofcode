@@ -8,6 +8,8 @@ fun main(args: Array<String>) {
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
+    // Implementing arbitrary-length bitmasks for this is ridiculous, yet here we are ¯\_(ツ)_/¯
+
     println(
         File(input).readLines()
             .map { it.split(',') }
