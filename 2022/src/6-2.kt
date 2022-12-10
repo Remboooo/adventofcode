@@ -1,0 +1,15 @@
+import kotlinx.cli.*
+import util.transpose
+import java.io.File
+
+fun main(args: Array<String>) {
+    val parser = ArgParser("AoC day 6 part 2")
+    val input by parser.argument(ArgType.String, description = "Input file")
+    parser.parse(args)
+
+    File(input).readLines().forEach { line ->
+        println(line.windowed(14).mapIndexed { i, s ->
+            if (s.all { c -> s.count { it == c } == 1 }) i+14 else null
+        }.find { it != null })
+    }
+}
