@@ -14,6 +14,8 @@ kotlin {
         main {
             dependencies {
                 implementation("org.jetbrains.kotlinx:kotlinx-cli:0.3.5")
+                implementation("org.jetbrains.kotlinx:multik-core:0.2.0")
+                implementation("org.jetbrains.kotlinx:multik-default:0.2.0")
             }
         }
     }
