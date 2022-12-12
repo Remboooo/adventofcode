@@ -1,26 +1,9 @@
 import kotlinx.cli.ArgParser
 import kotlinx.cli.ArgType
-import org.jetbrains.kotlinx.multik.api.mk
-import org.jetbrains.kotlinx.multik.api.ndarray
-import org.jetbrains.kotlinx.multik.api.zeros
-import org.jetbrains.kotlinx.multik.ndarray.data.D2Array
-import org.jetbrains.kotlinx.multik.ndarray.data.get
-import org.jetbrains.kotlinx.multik.ndarray.data.set
-import org.jetbrains.kotlinx.multik.ndarray.operations.count
-import util.reversedAxis
+import util.*
 import java.io.File
 import kotlin.math.absoluteValue
 import kotlin.math.sign
-
-data class XY(val x: Int, val y: Int) {
-    operator fun plus(other: XY): XY {
-        return XY(x+other.x, y+other.y)
-    }
-
-    operator fun minus(other: XY): XY {
-        return XY(x-other.x, y-other.y)
-    }
-}
 
 fun main(args: Array<String>) {
     val parser = ArgParser("AoC day 9 part 1")

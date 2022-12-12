@@ -14,7 +14,7 @@ fun main(args: Array<String>) {
         Monkey(
             items = lines[1].substring("  Starting items: ".length).split(", ").map { it.toLong() }.toMutableList(),
             op = lines[2]["  Operation: new = old ".length],
-            operand = lines[2].substring("  Operation: new = old x ".length).toLongOrNull(),
+            operand = lines[2].substring("  Operation: new = old util.getX ".length).toLongOrNull(),
             testDivisor = lines[3].substring("  Test: divisible by ".length).toLong(),
             trueMonkey = lines[4].substring("    If true: throw to monkey ".length).toInt(),
             falseMonkey = lines[5].substring("    If false: throw to monkey ".length).toInt()

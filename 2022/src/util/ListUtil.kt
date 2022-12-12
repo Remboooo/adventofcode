@@ -13,6 +13,18 @@ fun <T> Iterable<Iterable<T>>.transpose(): List<List<T>> {
     return result
 }
 
+fun Iterable<String>.coordsOf(item: Char): List<Pair<Int,Int>> {
+    return flatMapIndexed { y, line -> line.mapIndexed { x, c ->
+        if (c == item) Pair(y, x) else null
+    }}.filterNotNull()
+}
+
+fun <T> Iterable<Iterable<T>>.coordsOf(item: T): List<Pair<Int,Int>> {
+    return flatMapIndexed { y, line -> line.mapIndexed { x, c ->
+        if (c == item) Pair(x, y) else null
+    }}.filterNotNull()
+}
+
 fun <E> MutableList<E>.removeLast(amount: Int): List<E> {
     val toRemove = subList(size-amount, size).toList()
     repeat(amount) { removeLast() }
