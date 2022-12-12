@@ -29,3 +29,15 @@ fun Iterable<Iterable<Int>>.toPixels(): String {
         }.joinToString("")
     }
 }
+
+inline fun <T> Iterable<T>.productOf(selector: (T) -> Int): Int {
+    return map(selector).reduce { a, b -> a*b }
+}
+
+fun Iterable<Int>.product(): Int {
+    return reduce { a, b -> a*b }
+}
+
+fun Iterable<Long>.product(): Long {
+    return reduce { a, b -> a*b }
+}

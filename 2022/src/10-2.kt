@@ -16,7 +16,7 @@ class Day10Part2VM(instructions: List<Op>) : Day10VM(instructions) {
 }
 
 fun main(args: Array<String>) {
-    val parser = ArgParser("AoC day 9 part 1")
+    val parser = ArgParser("AoC day 10 part 2")
     val input by parser.argument(ArgType.String, description = "Input file")
     parser.parse(args)
 
