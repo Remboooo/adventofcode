@@ -18,3 +18,14 @@ fun <E> MutableList<E>.removeLast(amount: Int): List<E> {
     repeat(amount) { removeLast() }
     return toRemove
 }
+
+fun Iterable<Iterable<Int>>.toPixels(): String {
+    return joinToString("\n") {
+        it.map {
+            when (it) {
+                1 -> '#'
+                else -> ' '
+            }
+        }.joinToString("")
+    }
+}
