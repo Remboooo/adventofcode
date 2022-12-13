@@ -30,6 +30,7 @@ fun main(args: Array<String>) {
     val distances = heights.map { Int.MAX_VALUE }
     distances[start] = 0
 
+    // Dijkstra that shit
     val q = mutableListOf(start)
     while (q.isNotEmpty()) {
         val xy = q.removeFirst()

@@ -10,7 +10,7 @@ fun <T> Iterable<Iterable<T>>.transpose(): List<List<T>> {
     outer.drop(1).forEach {
         it.forEachIndexed { i, elem -> result[i].add(elem) }
     }
-    return result
+    return result.map { it.toList() }
 }
 
 fun Iterable<String>.coordsOf(item: Char): List<Pair<Int,Int>> {
